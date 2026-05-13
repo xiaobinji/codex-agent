@@ -4,7 +4,7 @@
 
 1. **版本变更时**：每次使用前检查 `codex --version`，与 `../state/version.txt` 对比，版本变了立即触发更新
 2. **定期更新**：距 `../state/last_updated.txt` 超过 7 天时触发
-3. **手动触发**：涛哥要求时
+3. **手动触发**：委托人要求时
 
 ## 数据源（信任度从高到低）
 
@@ -72,7 +72,7 @@ https://developers.openai.com/codex/cli/slash-commands
 7. 更新 `config_schema.md`：同步字段变更
 8. 更新 `capabilities.md`：检查本机 skills、MCP、模型变化
 9. 更新 `changelog.md`：记录本次变更摘要
-10. 如有推荐开启的新 feature → 生成 config.toml patch → 报告涛哥确认后应用
+10. 如有推荐开启的新 feature → 生成 config.toml patch → 报告委托人确认后应用
 11. 更新 `../state/version.txt` 和 `../state/last_updated.txt`
 
 ## 校验规则

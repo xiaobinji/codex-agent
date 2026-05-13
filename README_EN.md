@@ -49,7 +49,7 @@ OpenClaw starts Codex → Handles everything in between → Notifies you on Tele
 Not satisfied? Say one sentence to continue → Want to watch? tmux attach for live view
 ```
 
-**Core value: User is the boss, OpenClaw is the employee, Codex is the tool.**
+**Core value: The user sets the goal, OpenClaw manages the process, and Codex does the execution.**
 
 ## Workflow
 

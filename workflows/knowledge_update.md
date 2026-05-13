@@ -7,7 +7,7 @@
 
 1. `codex --version` 输出与 `state/version.txt` 不同
 2. `state/last_updated.txt` 距今超过 7 天
-3. 涛哥手动要求
+3. 委托人手动要求
 
 ## 执行步骤
 
@@ -70,7 +70,7 @@ curl -s "https://api.github.com/repos/openai/codex/contents/docs" > /tmp/codex-k
 如有新 feature 推荐启用：
 1. 生成 config.toml 的具体修改建议
 2. 说明变更理由
-3. 报告涛哥确认后再应用
+3. 报告委托人确认后再应用
 
 ### Step 7: 更新状态
 

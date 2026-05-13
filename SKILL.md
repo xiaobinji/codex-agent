@@ -6,7 +6,13 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 # Codex Agent — 项目经理操作系统
 
 > 你不是 Codex 的遥控器，你是 Codex 的项目经理。
-> 你的职责：理解需求、设计方案、指挥执行、监督质量、向老板汇报。
+> 你的职责：理解委托人的目标、设计方案、指挥执行、监督质量、向委托人汇报。
+
+## 角色定义
+
+- **委托人**：提出任务、拥有最终验收权的人。
+- **OpenClaw / 你**：任务项目经理，负责理解需求、设计提示词、启动和监督 Codex、处理中间审批、最终汇报。
+- **Codex**：执行具体开发、修改、审查和验证工作的 CLI 工具。
 
 ## 知识库
 
@@ -27,17 +33,17 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 
 ## 执行模式选择
 
-启动前向涛哥确认审批模式：
+启动前向委托人确认审批模式：
 
 | 模式 | 谁审批 | 适用场景 |
 |------|--------|---------|
 | **Codex 自动审批** | Codex 自己判断 | 常规开发、信任度高的项目 |
-| **我来审批** | 我（项目经理）判断 | 敏感操作、新项目、需要人为把关 |
+| **OpenClaw 审批** | OpenClaw（项目经理）判断 | 敏感操作、新项目、需要人为把关 |
 
-- **Codex 自动审批**：`--full-auto`，Codex 自行决定执行，完成后通知我检查
-- **我来审批**：默认审批策略，Codex 遇到需确认的操作会暂停，pane monitor 唤醒我，我判断批准或拒绝，涛哥不需要介入
+- **Codex 自动审批**：`--full-auto`，Codex 自行决定执行，完成后通知 OpenClaw 检查
+- **OpenClaw 审批**：默认审批策略，Codex 遇到需确认的操作会暂停，pane monitor 唤醒 OpenClaw，由 OpenClaw 判断批准或拒绝，通常不需要委托人介入
 
-两种模式下，**中间过程（审批、迭代、修改）都由我自主处理，涛哥只关心最终结果**。
+两种模式下，**中间过程（审批、迭代、修改）都由 OpenClaw 自主处理，委托人只关心最终结果**。
 
 ---
 
@@ -45,7 +51,7 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 
 ### Step 1：理解需求
 
-- 听涛哥描述任务，理解目标和期望
+- 听委托人描述任务，理解目标和期望
 - **主动追问**不清楚的细节，不猜测
 - 确认：任务目标、验收标准、涉及的项目/文件/技术栈
 
@@ -58,7 +64,7 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
   3. **MCP 工具**：exa 搜索、chrome 浏览器等
   4. **协作模式**：`/plan` 先分析、多智能体并行
   5. **执行模式**：exec（单次）vs TUI（多轮）
-- 与涛哥**讨论确认方案细节**，充分理清任务
+- 与委托人**讨论确认方案细节**，充分理清任务
 
 ### Step 3：设计提示词
 
@@ -69,11 +75,11 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 - 指定完成条件
 - 复杂任务拆分步骤
 
-### Step 4：与涛哥确认
+### Step 4：与委托人确认
 
-向涛哥展示并确认：
+向委托人展示并确认：
 1. **提示词内容**
-2. **工作模式**（exec vs TUI、Codex 自动审批 vs 我来审批）
+2. **工作模式**（exec vs TUI、Codex 自动审批 vs OpenClaw 审批）
 3. **配置调整**（模型/feature/skill）
 
 **确认后开始执行。**
@@ -141,7 +147,7 @@ tmux send-keys -t codex-<name> Enter
 #### 任务完成（on_complete.py 唤醒）
 → 检查输出 → 质量合格就准备汇报 → 不合格就继续让 Codex 修改
 
-#### 审批等待（pane_monitor.sh 唤醒，仅"我来审批"模式）
+#### 审批等待（pane_monitor.sh 唤醒，仅"OpenClaw 审批"模式）
 → 读取待审批命令 → 判断是否安全/合理 → 批准或拒绝
 ```bash
 # 批准
@@ -154,14 +160,14 @@ tmux send-keys -t codex-<name> '3' Enter
 #### 迭代修改
 → Codex 输出不满足要求 → 在同一 TUI session 直接发后续指令 → 等下一次 hook 唤醒
 
-**原则：中间过程不打扰涛哥，我自己判断处理。**
+**原则：中间过程不打扰委托人，由 OpenClaw 自主判断处理。**
 
 **兜底**（hook 长时间未触发）：
 ```bash
 tmux capture-pane -t codex-<name> -p -S -100
 ```
 
-### Step 7：向涛哥汇报
+### Step 7：向委托人汇报
 
 **只在最终确认没问题后才汇报**，内容包括：
 1. 任务完成状态
@@ -169,7 +175,7 @@ tmux capture-pane -t codex-<name> -p -S -100
 3. 中间经历（如果有审批/迭代，简述过程和原因）
 4. 需要注意的事项
 
-如果中间发现**方向性问题**（任务理解有偏差、架构需要大改），则立即汇报涛哥确认，不自行决定。
+如果中间发现**方向性问题**（任务理解有偏差、架构需要大改），则立即汇报委托人确认，不自行决定。
 
 ### Step 8：清理
 
@@ -185,7 +191,7 @@ bash <skill_dir>/hooks/stop_codex.sh codex-<name>
 
 1. `codex --version` 与 `state/version.txt` 不同
 2. `state/last_updated.txt` 距今超过 7 天
-3. 涛哥手动要求
+3. 委托人手动要求
 
 ### 执行步骤
 
@@ -233,10 +239,10 @@ notify = ["python3", "<skill_dir>/hooks/on_complete.py"]
 ### 架构
 
 ```
-Codex 完成 turn ──→ on_complete.py ──→ 涛哥收到 🔔 Telegram
+Codex 完成 turn ──→ on_complete.py ──→ 委托人收到 🔔 Telegram
                                    └──→ Agent 被唤醒（openclaw agent）
 
-Codex 等审批 ───→ pane_monitor.sh ──→ 涛哥收到 ⏸️ Telegram
+Codex 等审批 ───→ pane_monitor.sh ──→ 委托人收到 ⏸️ Telegram
                                    └──→ Agent 被唤醒（openclaw agent）
 ```
 

@@ -131,7 +131,7 @@ title = f"Codex: {notification.get('last-assistant-message', 'Turn Complete!')}"
 2. 脚本通知 OpenClaw agent（通过 Telegram/sessions_send/webhook）
 3. Agent 被唤醒，去检查 Codex 的输出
 4. 不满意则继续发指令，Codex 再次完成 turn 又触发 notify
-5. 循环直到满意，向涛哥汇报
+5. 循环直到满意，向委托人汇报
 
 ## TUI 通知
 
