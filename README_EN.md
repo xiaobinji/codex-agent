@@ -25,12 +25,12 @@ Normal usage: you manually write a prompt and send it to Codex. Codex only knows
 
 With this skill, OpenClaw does the following **before** sending a task to Codex:
 
-1. **Scans the local environment**: Which MCP servers are installed (Exa search, Chrome control, etc.), which Skills, which models are available
-2. **Selects the right model**: Fast model for simple bugs, powerful model for architecture design, code-specific model for code search
-3. **Crafts the prompt**: Not forwarding the user's raw message, but constructing an optimal prompt based on the knowledge base + prompt pattern library — telling Codex what tools it can use, how to break down the task, what format to output
-4. **Enables appropriate feature flags**: Such as `multi_agent`, `web_search`, `shell_snapshot`, etc., enabled as needed
+1. **Understands the goal**: Scope, acceptance criteria, project context, and constraints
+2. **Chooses the execution mode**: exec for simple tasks, TUI + tmux for complex, multi-turn, or approval-heavy tasks
+3. **Crafts the prompt**: Not forwarding the user's raw message, but turning the goal, context, completion criteria, and verification requirements into an executable Codex task
+4. **Supervises quality**: Waits for hook wake-ups, checks the result, and asks Codex to iterate when needed
 
-This means Codex receives a **carefully designed task that fully utilizes all local capabilities**, not a casual one-liner from the user.
+The Codex runtime is expected to be configured ahead of time by the user. OpenClaw does not maintain a static capability inventory; when models, MCP servers, skills, or permissions need to be confirmed, it should prefer live CLI output from the machine running Codex.
 
 ## What Problem Does It Solve?
 
@@ -146,15 +146,15 @@ User chooses before launch:
 
 Pane monitor runs in both modes (`--full-auto` occasionally still prompts for approval).
 
-## Knowledge Base: OpenClaw Truly Understands Codex
+## Knowledge Base: On-Demand Reference
 
-OpenClaw doesn't blindly forward commands. It maintains a Codex knowledge base:
+OpenClaw doesn't blindly forward commands, but standard tasks do not read the knowledge base by default. This avoids extra context and stale information. The knowledge base is used on demand for complex prompts, config changes, troubleshooting, or manual updates:
 
 | File | Content |
 |------|---------|
-| `features.md` | 30+ feature flags, slash commands, CLI subcommands |
+| `features.md` | feature flags, slash commands, CLI subcommands |
 | `config_schema.md` | Complete config.toml field definitions |
-| `capabilities.md` | Local MCP/Skills/model capabilities |
+| `capabilities.md` | Historical environment capability snapshot, reference only |
 | `prompting_patterns.md` | Prompt pattern library (by task type) |
 | `UPDATE_PROTOCOL.md` | 5-tier data source update protocol |
 | `changelog.md` | Version changes + findings from testing |

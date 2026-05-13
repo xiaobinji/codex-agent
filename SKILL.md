@@ -1,6 +1,6 @@
 ---
 name: codex-agent
-description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知识库维护（自动跟踪 Codex 最新功能）、任务执行（提示词设计→执行→监控→质量检查→迭代→汇报）、配置管理（feature flags/模型/skills/MCP）。通过 tmux 操作交互式 TUI，通过 notify hooks + pane monitor 实现异步唤醒。NOT for: 简单单行编辑（用 edit）、读文件（用 read）、快速问答（直接回答）。"
+description: "作为项目经理操作 OpenAI Codex CLI。核心是任务执行编排（提示词设计→执行→监控→质量检查→迭代→汇报）和可选配置/知识库维护。通过 tmux 操作交互式 TUI，通过 notify hooks + pane monitor 实现异步唤醒。NOT for: 简单单行编辑（用 edit）、读文件（用 read）、快速问答（直接回答）。"
 ---
 
 # Codex Agent — 项目经理操作系统
@@ -14,16 +14,28 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 - **OpenClaw / 你**：任务项目经理，负责理解需求、设计提示词、启动和监督 Codex、处理中间审批、最终汇报。
 - **Codex**：执行具体开发、修改、审查和验证工作的 CLI 工具。
 
-## 知识库
+## 前置条件
 
-操作 Codex 之前，先读取相关知识文件（按需加载，不要全部读取）：
+默认认为 Codex CLI 运行环境已经配置完成，包括：
+
+- Codex CLI 可用并已登录
+- 所需模型、MCP servers、skills、权限策略已在 Codex 配置中设置
+- notify hook 已配置
+- tmux 可用
+- OpenClaw 消息通道和 agent 唤醒可用
+
+OpenClaw 不维护运行环境的静态能力清单。需要确认环境能力时，优先使用运行环境中的 CLI 输出，例如 `codex --version`、`codex --help`、`codex mcp list`，或让 Codex 在目标工作目录内自检。
+
+## 知识库使用原则
+
+默认不要读取知识库文件，避免增加上下文和依赖过期信息。只有在需要修改 Codex 配置、设计复杂提示词、排查 Codex 行为，或执行知识库更新时，才按需读取相关文件。
 
 | 文件 | 用途 | 何时读取 |
 |------|------|---------|
-| `knowledge/features.md` | 全量功能、feature flags、斜杠命令 | 需要了解 Codex 能做什么时 |
+| `knowledge/features.md` | feature flags、斜杠命令、CLI 功能参考 | 排查 Codex 行为或确认功能时 |
 | `knowledge/config_schema.md` | config.toml 完整字段定义 | 需要改配置时 |
-| `knowledge/capabilities.md` | 本机实际能力（MCP/Skills/模型/策略） | 设计提示词时 |
-| `knowledge/prompting_patterns.md` | 提示词模式库 | 构建提示词时 |
+| `knowledge/capabilities.md` | 历史环境能力快照 | 仅作为参考，不作为事实来源 |
+| `knowledge/prompting_patterns.md` | 提示词模式库 | 设计复杂提示词时 |
 | `knowledge/UPDATE_PROTOCOL.md` | 知识库更新协议 | 执行知识库更新时 |
 | `knowledge/changelog.md` | 版本变更追踪 | 检查是否有新功能时 |
 
@@ -58,20 +70,17 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 ### Step 2：构思方案
 
 - 分析任务复杂度和实现路径
-- 评估需要用到的工具链（读取 `knowledge/capabilities.md`）：
-  1. **模型选择**：gpt-5.2 medium/high/xhigh
-  2. **Skill 调用**：`$skill_name 任务描述`
-  3. **MCP 工具**：exa 搜索、chrome 浏览器等
-  4. **协作模式**：`/plan` 先分析、多智能体并行
-  5. **执行模式**：exec（单次）vs TUI（多轮）
+- 选择执行方式：exec（单次）或 TUI（多轮/需要审批/需要持续迭代）
+- 默认使用 Codex 当前环境配置，不依赖 `knowledge/capabilities.md`
+- 只有当任务明确依赖特定能力，或执行失败疑似由环境能力缺失导致时，才实时检查运行环境能力
 - 与委托人**讨论确认方案细节**，充分理清任务
 
 ### Step 3：设计提示词
 
-读取 `knowledge/prompting_patterns.md`，基于对 Codex 能力的理解，结合任务特点设计提示词：
+基于任务特点设计提示词；只有复杂任务才按需读取 `knowledge/prompting_patterns.md`：
 - 明确任务边界（做什么、不做什么）
 - 提供上下文（文件路径、技术栈、约束）
-- 利用工具链（显式调用 skills、MCP）
+- 指定 Codex 应自行检查项目、运行测试、汇报结果
 - 指定完成条件
 - 复杂任务拆分步骤
 
@@ -80,7 +89,7 @@ description: "作为项目经理操作 OpenAI Codex CLI 完全体。包含：知
 向委托人展示并确认：
 1. **提示词内容**
 2. **工作模式**（exec vs TUI、Codex 自动审批 vs OpenClaw 审批）
-3. **配置调整**（模型/feature/skill）
+3. **如有必要，说明配置调整**（模型/feature/skill）
 
 **确认后开始执行。**
 

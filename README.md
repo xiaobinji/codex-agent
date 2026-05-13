@@ -25,12 +25,12 @@ Codex 是 OpenAI 的终端编程工具，很强，但需要你坐在电脑前盯
 
 OpenClaw 在发任务给 Codex 之前，会：
 
-1. **识别本机环境**：当前装了哪些 MCP server（Exa 搜索、Chrome 控制等）、哪些 Skills、哪些模型可用
-2. **根据任务选模型**：简单 bug 用快模型，架构设计用强模型，代码搜索用 code 专用模型
-3. **设计提示词**：不是转发用户原话，而是基于知识库 + 提示词模式库，针对任务类型构造最优提示词——告诉 Codex 它能用什么工具、该怎么分步骤、输出什么格式
-4. **开启合适的 feature flags**：比如 `multi_agent`、`web_search`、`shell_snapshot` 等，按需启用
+1. **理解任务目标**：确认范围、验收标准、涉及的项目和约束
+2. **选择执行方式**：简单任务用 exec，复杂/多轮/需要审批的任务用 TUI + tmux
+3. **设计提示词**：不是转发用户原话，而是把目标、上下文、完成条件和验证要求整理成 Codex 能执行的任务
+4. **监督执行质量**：等 hook 唤醒后检查输出，不满意就继续让 Codex 修改
 
-这意味着 Codex 每次收到的都是一个**充分利用本机全部能力**的精心设计的任务，而不是用户随手写的一句话。
+Codex 运行环境默认由用户提前配置好。OpenClaw 不维护静态能力清单；需要确认模型、MCP、skills 或权限时，优先使用运行机器上的 CLI 实时输出。
 
 ## 解决什么问题？
 
@@ -146,15 +146,15 @@ Codex 弹出审批提示 → pane_monitor.sh 检测到关键词
 
 两种模式下 pane monitor 都会启动（`--full-auto` 偶尔也会弹审批）。
 
-## 知识库：OpenClaw 真正理解 Codex
+## 知识库：按需参考
 
-OpenClaw 不是盲目转发命令。它维护一套 Codex 知识库：
+OpenClaw 不是盲目转发命令，但标准任务默认不读取知识库，避免增加上下文和依赖过期信息。知识库只在复杂提示词、配置修改、排障或手动更新时按需参考：
 
 | 文件 | 内容 |
 |------|------|
-| `features.md` | 30+ feature flags、斜杠命令、CLI 子命令 |
+| `features.md` | feature flags、斜杠命令、CLI 子命令 |
 | `config_schema.md` | config.toml 完整字段定义 |
-| `capabilities.md` | 本机 MCP/Skills/模型能力 |
+| `capabilities.md` | 历史环境能力快照，仅作参考 |
 | `prompting_patterns.md` | 提示词模式库（按任务类型） |
 | `UPDATE_PROTOCOL.md` | 5 级数据源更新协议 |
 | `changelog.md` | 版本变更 + 实测发现 |
