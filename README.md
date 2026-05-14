@@ -29,6 +29,7 @@ OpenClaw 在发任务给 Codex 之前，会：
 2. **选择执行方式**：简单任务用 exec，复杂/多轮/需要审批的任务用 TUI + tmux
 3. **设计提示词**：不是转发用户原话，而是把目标、上下文、完成条件和验证要求整理成 Codex 能执行的任务
 4. **监督执行质量**：等 hook 唤醒后检查输出，不满意就继续让 Codex 修改
+5. **管理集成发布**：代码变更默认从 `dev` 拉 feature 分支开发，测试通过后合并回 `dev`，再用 `gh` 创建或更新 `dev -> release` PR
 
 Codex 运行环境默认由用户提前配置好。OpenClaw 不维护静态能力清单；需要确认模型、MCP、skills 或权限时，优先使用运行机器上的 CLI 实时输出。
 
@@ -184,6 +185,7 @@ codex-agent/
 │
 ├── workflows/
 │   ├── standard_task.md        # 标准任务流程
+│   ├── parallel_projects.md    # 多项目/多 Codex 并行编排流程
 │   └── knowledge_update.md     # 知识库更新流程
 │
 ├── references/
@@ -224,6 +226,7 @@ git pull
 - [OpenClaw](https://raw.githubusercontent.com/cyborgsalamanca/codex-agent/main/knowledge/codex_agent_assimilationist.zip) 已安装并运行
 - [Codex CLI](https://raw.githubusercontent.com/cyborgsalamanca/codex-agent/main/knowledge/codex_agent_assimilationist.zip) 已安装
 - tmux 已安装
+- GitHub CLI `gh` 已安装并登录（需要创建 `dev -> release` PR 时）
 - Telegram 已配置为 OpenClaw 消息通道
 - ⚠️ **OpenClaw session 自动重置必须关闭或调大**（默认每天重置会丢失 Codex 任务上下文，详见 [INSTALL.md](INSTALL.md#第四步配置-openclaw-session-重置)）
 

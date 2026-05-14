@@ -29,6 +29,7 @@ With this skill, OpenClaw does the following **before** sending a task to Codex:
 2. **Chooses the execution mode**: exec for simple tasks, TUI + tmux for complex, multi-turn, or approval-heavy tasks
 3. **Crafts the prompt**: Not forwarding the user's raw message, but turning the goal, context, completion criteria, and verification requirements into an executable Codex task
 4. **Supervises quality**: Waits for hook wake-ups, checks the result, and asks Codex to iterate when needed
+5. **Manages integration and release flow**: Code changes default to feature branches from `dev`; after tests pass, OpenClaw merges back to `dev` and uses `gh` to create or update the `dev -> release` PR
 
 The Codex runtime is expected to be configured ahead of time by the user. OpenClaw does not maintain a static capability inventory; when models, MCP servers, skills, or permissions need to be confirmed, it should prefer live CLI output from the machine running Codex.
 
@@ -178,6 +179,9 @@ codex-agent/
 │
 ├── knowledge/                  # Codex knowledge base (6 files)
 ├── workflows/                  # Detailed workflows
+│   ├── standard_task.md        # Standard task flow
+│   ├── parallel_projects.md    # Multi-project / multi-Codex orchestration
+│   └── knowledge_update.md     # Knowledge update flow
 ├── references/                 # CLI command reference
 └── state/                      # Runtime state (version, last updated)
 ```
@@ -212,6 +216,7 @@ See **[CHANGELOG.md](CHANGELOG.md)** for what's new.
 - [OpenClaw](https://github.com/openclaw/openclaw) installed and running
 - [Codex CLI](https://github.com/openai/codex) installed
 - tmux installed
+- GitHub CLI `gh` installed and authenticated (required for `dev -> release` PRs)
 - Telegram configured as OpenClaw message channel
 - ⚠️ **OpenClaw session auto-reset must be disabled or extended** (default daily reset loses Codex task context, see [INSTALL.md](INSTALL.md))
 

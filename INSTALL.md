@@ -7,6 +7,7 @@
 - [OpenClaw](https://github.com/openclaw/openclaw) 已安装并运行（`openclaw gateway status` 显示 running）
 - [Codex CLI](https://github.com/openai/codex) 已安装（`codex --version`）
 - tmux 已安装（`tmux -V`）
+- GitHub CLI `gh` 已安装并登录（需要创建 `dev -> release` PR 时）
 - Telegram 已配置为 OpenClaw 消息通道
 
 ## 第一步：安装 Skill
@@ -115,13 +116,16 @@ codex --version
 # 2. tmux 可用
 tmux -V
 
-# 3. Telegram 通知可发送（替换 YOUR_CHAT_ID）
+# 3. GitHub CLI 可用（需要创建 PR 时）
+gh auth status
+
+# 4. Telegram 通知可发送（替换 YOUR_CHAT_ID）
 openclaw message send --channel telegram --target YOUR_CHAT_ID --message "✅ codex-agent 通知测试"
 
-# 4. OpenClaw agent 可唤醒
+# 5. OpenClaw agent 可唤醒
 openclaw agent --agent main --message "✅ codex-agent 唤醒测试" --deliver --channel telegram --timeout 10
 
-# 5. Codex notify hook 可触发（在任意 git 目录下）
+# 6. Codex notify hook 可触发（在任意 git 目录下）
 cd /tmp && mkdir -p codex-test && cd codex-test && git init
 codex exec "say hello"
 # 你应该在 Telegram 上收到通知
